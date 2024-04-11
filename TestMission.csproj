@@ -1,0 +1,79 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net35</TargetFramework>
+    <AssemblyName>TestMission</AssemblyName>
+    <Description>Two test missions for House of the Dying Sun.</Description>
+    <Version>1.0.2</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <Authors>Jamesthe1</Authors>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Product>Test Mission</Product>
+    <SignAssembly>False</SignAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="export\manifest.json" />
+    <None Remove="export\plugins\TestMission.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.1.0" />
+    <PackageReference Include="UnityEngine.Modules" Version="5.4.6" IncludeAssets="compile" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\DyingSun\dyingsun_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="MissionLoader">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\DyingSun\BepInEx\plugins\MissionLoader.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Update="Resources\AssetBundleRsrc.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AssetBundleRsrc.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\AssetBundleRsrc.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>AssetBundleRsrc.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="testmission">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="export\plugins\" />
+  </ItemGroup>
+  
+  <!-- Debug -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Exec Command="robocopy &quot;$(TargetDir) &quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\DyingSun\BepInEx\plugins&quot; $(TargetFileName) /MOV&#xD;&#xA;if %25errorlevel%25 leq 4 exit 0&#xD;&#xA;else exit %25errorlevel%25" />
+  </Target>
+
+  <!-- Release -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Exec Command="robocopy &quot;$(TargetDir) &quot; .\export\plugins $(TargetFileName) /MOV&#xD;&#xA;7z a -tzip TestMission.zip .\export\*" />
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Exec Command="echo {&quot;name&quot;: &quot;$(AssemblyName)&quot;, &quot;description&quot;: &quot;$(Description)&quot;, &quot;version_number&quot;: &quot;$(Version)&quot;, &quot;dependencies&quot;: [&quot;Jamesthe1-MissionLoader-1.1.0&quot;], &quot;website_url&quot;: &quot;https://github.com/Jamesthe1/TestMission&quot;} &gt; export\manifest.json" />
+  </Target>
+</Project>

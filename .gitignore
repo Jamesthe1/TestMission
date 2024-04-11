@@ -1,0 +1,6 @@
+.vs
+bin/
+export/plugins
+export/manifest.json
+obj/
+*.zip
